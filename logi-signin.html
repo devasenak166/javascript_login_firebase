@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name=description content="login-signin">
+    <title>Login - signin</title>
+</head>
+<body>
+    <h1>Login-signin</h1>
+    <h3>Registration </h3>
+    <input type="text" name="username" id="username" placeholder="enter name"><br><br>
+    <input type="email" name="email" id="email" placeholder="enter email"><br><br>
+    <input type="password" name="password" id="password" placeholder="enter password"><br><br>
+    <a href=""><button class="btn" id="login">Login! If already a user</button></a>
+    <a href=""><button class="btn" id="signup"> sign up! if not register</button></a>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js'
+        import { getAuth , createUserWithEmailAndPassword , signInWithEmailAndPassword} from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js'
+        import { getFirestore} from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js'
+        import{ getDatabase,ref, onValue, set,push} from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js';
+        const firebaseConfig = {
+            apiKey: "AIzaSyCYDEAtkX79T3_AnLzRz4RyYMrNsP-W6kc",
+    authDomain: "login-signin-1c262.firebaseapp.com",
+    projectId: "login-signin-1c262",
+    storageBucket: "login-signin-1c262.appspot.com",
+    messagingSenderId: "1068048663150",
+    appId: "1:1068048663150:web:e05823bbf8dec2c7db1c7f",
+    // databaseURL:'https://login-signin-1c262-default-rtdb.firebaseio.com'
+
+        }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase();
+        let username=document.querySelector("#username")
+        let login=document.querySelector("#login")
+        let signup=document.querySelector("#signup")
+        let email=document.querySelector("#email")  
+        let password=document.querySelector("#password")
+        signup.addEventListener("click",(e)=>{
+         e.preventDefault()
+         let username=document.querySelector("#username").value
+        let email=document.querySelector("#email").value
+        let password=document.querySelector("#password").value
+        createUserWithEmailAndPassword(auth,email, password)
+        .then((userCredential) => {
+        const user = userCredential.user;
+    
+        alert('user created successfully')
+        const userRef=ref(db, 'users/' + user.uid);
+        set(userRef, {
+        username: username,
+        email: email,
+       password: password
+  })
+.then(() => {
+        console.log('Data successfully written to Realtime Database');
+        document.querySelector("#username").value=""
+        document.querySelector("#email").value=""
+        document.querySelector("#password").value=""
+      }).catch((error) => {
+        console.error('Error writing data to Realtime Database: ', error);
+      });
+        localStorage.setItem(user.uid,user.uid);
+        window.location.href = `./successful-register.html?id=${user.uid}`; 
+        })
+        .catch((error)=>{
+            console.log(error.message)
+        })
+
+    })
+
+   // signin
+   login.addEventListener("click",(e)=>{
+    e.preventDefault()
+    let email=document.querySelector("#email").value
+    let password=document.querySelector("#password").value
+    signInWithEmailAndPassword(auth, email, password)
+  .then((userCredential) => {
+   
+    const user = userCredential.user;
+    alert("user logged in successfully")
+    localStorage.setItem(user.uid,user.uid)
+    window.location.href=`login.html?id=${user.uid}`;
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.log(errorMessage)
+  });
+
+   })
+    </script>
+</body>
+</html>
